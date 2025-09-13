@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 
-// Blog type
 type Blog = {
   id: number;
   title: string;
@@ -15,67 +14,64 @@ type Blog = {
   featured?: boolean;
 };
 
-// Dummy blogs
 const blogs: Blog[] = [
   {
     id: 1,
     title: "Getting Started with AI",
-    author: "John Doe",
+    author: "Aryan",
     date: "2025-08-20",
     readTime: "5 min read",
     category: "AI",
     preview: "AI is transforming industries. Learn how you can get started...",
-    thumbnail: "https://source.unsplash.com/400x200/?ai,technology",
+    thumbnail: "/blog3.jpeg",
     featured: true,
   },
   {
     id: 2,
     title: "Web Development Trends 2025",
-    author: "Jane Smith",
+    author: "Siddharth",
     date: "2025-08-22",
     readTime: "7 min read",
     category: "Web Dev",
     preview: "The latest frameworks and tools you should know...",
-    thumbnail: "https://source.unsplash.com/400x200/?web,code",
+    thumbnail: "/blog1.jpeg",
     featured: true,
   },
   {
     id: 3,
     title: "Machine Learning Basics",
-    author: "Alice Johnson",
+    author: "Niva",
     date: "2025-08-25",
     readTime: "6 min read",
     category: "ML",
     preview: "Machine Learning is at the core of modern AI...",
-    thumbnail: "https://source.unsplash.com/400x200/?machine-learning,data",
+    thumbnail: "/blog4.jpeg",
   },
   {
     id: 4,
     title: "The Future of Cloud Computing",
-    author: "David Lee",
+    author: "John",
     date: "2025-08-27",
     readTime: "8 min read",
     category: "Cloud",
     preview: "Cloud is not just storage anymore — it’s the backbone of modern apps...",
-    thumbnail: "https://source.unsplash.com/400x200/?cloud,server",
+    thumbnail: "/blog2.jpeg",
   },
 ];
 
-// Dummy authors
 const authors = [
-  { name: "John Doe", articles: 12, avatar: "https://i.pravatar.cc/50?img=1" },
-  { name: "Jane Smith", articles: 8, avatar: "https://i.pravatar.cc/50?img=2" },
-  { name: "Alice Johnson", articles: 15, avatar: "https://i.pravatar.cc/50?img=3" },
+  { name: "John", articles: 12, avatar: "https://i.pravatar.cc/50?img=1" },
+  { name: "Siddharth", articles: 8, avatar: "https://i.pravatar.cc/50?img=2" },
+  { name: "Aryan", articles: 15, avatar: "https://i.pravatar.cc/50?img=3" },
 ];
 
 export default function HomePage() {
   const [filter, setFilter] = useState("All");
   const [search, setSearch] = useState("");
-  const [signedIn, setSignedIn] = useState(false);
 
   const filteredBlogs = blogs.filter((blog) => {
     const matchesCategory = filter === "All" || blog.category === filter;
-    const matchesSearch = blog.title.toLowerCase().includes(search.toLowerCase());
+    const matchesSearch = blog.title.toLowerCase().startsWith(search.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
@@ -86,11 +82,8 @@ export default function HomePage() {
       {/* Navbar */}
       <nav className="flex justify-between items-center py-4 border-b mb-6">
         <h1 className="text-2xl font-bold text-blue-600">Tech Insights</h1>
-        <button
-          onClick={() => setSignedIn(!signedIn)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-        >
-          {signedIn ? "Sign Out" : "Sign In"}
+        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+          Login
         </button>
       </nav>
 
@@ -152,7 +145,6 @@ export default function HomePage() {
                   <span>{blog.author}</span>
                   <span>{new Date(blog.date).toDateString()}</span>
                 </div>
-                {/* Estimated Time */}
                 <span className="inline-block text-xs font-medium bg-blue-100 text-blue-700 px-2 py-1 rounded">
                   ⏱ {blog.readTime}
                 </span>
