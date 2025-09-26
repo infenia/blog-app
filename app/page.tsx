@@ -1,6 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 
 type Blog = {
   id: number;
@@ -12,6 +24,7 @@ type Blog = {
   preview: string;
   thumbnail: string;
   featured?: boolean;
+  trending?: boolean;
 };
 
 const blogs: Blog[] = [
@@ -25,6 +38,7 @@ const blogs: Blog[] = [
     preview: "AI is transforming industries. Learn how you can get started...",
     thumbnail: "/blog3.jpeg",
     featured: true,
+    trending: true,
   },
   {
     id: 2,
@@ -46,6 +60,7 @@ const blogs: Blog[] = [
     category: "ML",
     preview: "Machine Learning is at the core of modern AI...",
     thumbnail: "/blog4.jpeg",
+    trending: true,
   },
   {
     id: 4,
@@ -54,129 +69,174 @@ const blogs: Blog[] = [
     date: "2025-08-27",
     readTime: "8 min read",
     category: "Cloud",
-    preview: "Cloud is not just storage anymore — it’s the backbone of modern apps...",
+    preview:
+      "Cloud is not just storage anymore — it’s the backbone of modern apps...",
     thumbnail: "/blog2.jpeg",
   },
 ];
 
-const authors = [
-  { name: "John", articles: 12, avatar: "https://i.pravatar.cc/50?img=1" },
-  { name: "Siddharth", articles: 8, avatar: "https://i.pravatar.cc/50?img=2" },
-  { name: "Aryan", articles: 15, avatar: "https://i.pravatar.cc/50?img=3" },
-];
-
 export default function HomePage() {
-  const [filter, setFilter] = useState("All");
+  const [tab, setTab] = useState("For You");
   const [search, setSearch] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const router = useRouter();
 
-  const filteredBlogs = blogs.filter((blog) => {
-    const matchesCategory = filter === "All" || blog.category === filter;
-    const matchesSearch = blog.title.toLowerCase().startsWith(search.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+  let displayedBlogs = blogs;
 
-  const featuredBlogs = blogs.filter((blog) => blog.featured);
+  if (tab === "Featured") displayedBlogs = blogs.filter((b) => b.featured);
+  if (tab === "Trending") displayedBlogs = blogs.filter((b) => b.trending);
+  if (selectedCategory)
+    displayedBlogs = displayedBlogs.filter(
+      (b) => b.category.toLowerCase() === selectedCategory.toLowerCase()
+    );
+
+  const recommendedBlogs = blogs.filter((b) => b.trending).slice(0, 5);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    router.push(`/search?query=${search}`);
+  };
 
   return (
-    <main className="container mx-auto p-6 space-y-12">
+    <main className="container mx-auto p-6 space-y-8">
       {/* Navbar */}
-      <nav className="flex justify-between items-center py-4 border-b mb-6">
-        <h1 className="text-2xl font-bold text-blue-600">Tech Insights</h1>
-        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-          Login
-        </button>
+      <nav className="flex justify-between items-center py-4 border-b">
+        <h1 className="text-2xl font-bold text-emerald-600">Tech Insights</h1>
+        <div className="flex gap-3">
+          <Button variant="outline">Sign In</Button>
+          <Button className="bg-emerald-600 hover:bg-emerald-700 text-white">
+            Get Started
+          </Button>
+        </div>
       </nav>
 
-      {/* Search + Category Filter */}
-      <section className="flex flex-col md:flex-row justify-between items-center gap-4">
-        <input
-          type="text"
-          placeholder="Search blogs..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full md:w-1/3 border px-3 py-2 rounded-lg"
-        />
-        <select
-          onChange={(e) => setFilter(e.target.value)}
-          className="border rounded-lg px-3 py-2 text-sm"
+      {/* Search + Tabs + Categories */}
+      <section>
+        <form
+          onSubmit={handleSearchSubmit}
+          className="flex justify-center mb-3"
         >
-          <option value="All">All</option>
-          <option value="AI">AI</option>
-          <option value="ML">ML</option>
-          <option value="Web Dev">Web Dev</option>
-          <option value="Cloud">Cloud</option>
-        </select>
-      </section>
+          <Input
+            type="text"
+            placeholder="Search blogs..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full md:w-1/2"
+          />
+        </form>
 
-      {/* Featured Blogs */}
-      <section>
-        <h2 className="text-2xl font-bold mb-4">🔥 Featured Blogs</h2>
-        <div className="grid gap-6 md:grid-cols-2">
-          {featuredBlogs.map((blog) => (
-            <div key={blog.id} className="bg-white border rounded-xl overflow-hidden shadow hover:shadow-lg transition">
-              <img src={blog.thumbnail} alt={blog.title} className="w-full h-48 object-cover" />
-              <div className="p-4">
-                <h3 className="text-xl font-semibold mb-2">{blog.title}</h3>
-                <p className="text-sm text-gray-600 mb-3">{blog.preview}</p>
-                <div className="flex justify-between text-xs text-gray-500">
-                  <span>{blog.author}</span>
-                  <span>{blog.readTime}</span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+        {/* Tabs */}
+        <Tabs
+          value={tab}
+          onValueChange={(val) => {
+            setTab(val);
+            setSelectedCategory(null);
+          }}
+        >
+          <TabsList>
+            {["For You", "Featured", "Trending"].map((t) => (
+              <TabsTrigger key={t} value={t}>
+                {t}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
 
-      {/* Blog Feed */}
-      <section>
-        <h2 className="text-2xl font-bold mb-4">📰 Recent Blogs</h2>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {filteredBlogs.map((blog) => (
-            <div
-              key={blog.id}
-              className="bg-white border rounded-xl overflow-hidden shadow hover:shadow-lg transition"
+        {/* Categories */}
+        <section className="flex flex-wrap gap-3 text-sm mb-6 mt-6">
+          {["AI", "Web Dev", "ML", "Cloud"].map((cat) => (
+            <Badge
+              key={cat}
+              variant={selectedCategory === cat ? "secondary" : "outline"}
+              className="cursor-pointer px-3 py-1 text-sm hover:border-emerald-500"
+              onClick={() => setSelectedCategory(cat)}
             >
-              <img src={blog.thumbnail} alt={blog.title} className="w-full h-40 object-cover" />
-              <div className="p-4">
-                <h3 className="text-lg font-semibold mb-2">{blog.title}</h3>
-                <p className="text-sm text-gray-600 mb-3">{blog.preview}</p>
-                <div className="flex justify-between text-xs text-gray-500 mb-2">
+              {cat}
+            </Badge>
+          ))}
+          {selectedCategory && (
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => setSelectedCategory(null)}
+            >
+              Clear
+            </Button>
+          )}
+        </section>
+      </section>
+
+      {/* Main Layout: Blogs + Sidebar */}
+      <section className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Blog Grid */}
+        <div className="lg:col-span-3 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {displayedBlogs.map((blog) => (
+            <Card key={blog.id} className="hover:shadow-lg transition">
+              <img
+                src={blog.thumbnail}
+                alt={blog.title}
+                className="w-full h-36 object-cover rounded-t-lg"
+              />
+              <CardContent>
+                <CardHeader>
+                  <CardTitle>{blog.title}</CardTitle>
+                </CardHeader>
+                <CardDescription>{blog.preview}</CardDescription>
+                <div className="flex justify-between text-xs text-gray-500 mt-2">
                   <span>{blog.author}</span>
                   <span>{new Date(blog.date).toDateString()}</span>
                 </div>
-                <span className="inline-block text-xs font-medium bg-blue-100 text-blue-700 px-2 py-1 rounded">
-                  ⏱ {blog.readTime}
-                </span>
-                <span className="ml-2 inline-block text-xs font-medium bg-gray-100 text-gray-700 px-2 py-1 rounded">
-                  {blog.category}
-                </span>
-              </div>
-            </div>
+                <div className="flex gap-2 mt-2">
+                  <Badge variant="outline">⏱ {blog.readTime}</Badge>
+                  <Badge variant="secondary">{blog.category}</Badge>
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
-      </section>
 
-      {/* Popular Authors */}
-      <section>
-        <h2 className="text-2xl font-bold mb-4">👩‍💻 Popular Authors</h2>
-        <div className="flex gap-6 flex-wrap">
-          {authors.map((author, idx) => (
-            <div key={idx} className="flex items-center gap-3 bg-white border rounded-lg p-4 shadow">
-              <img src={author.avatar} alt={author.name} className="w-12 h-12 rounded-full" />
-              <div>
-                <p className="font-semibold">{author.name}</p>
-                <p className="text-xs text-gray-500">{author.articles} articles</p>
-              </div>
-            </div>
-          ))}
-        </div>
+        {/* Recommended Sidebar */}
+        <aside className="lg:col-span-1 space-y-5">
+          <h2 className="text-lg font-bold text-emerald-700 border-b pb-2">
+            ✨ Recommended Stories
+          </h2>
+          <div className="space-y-4">
+            {recommendedBlogs.map((blog) => (
+              <Card
+                key={blog.id}
+                className="flex flex-col gap-3 p-3 hover:shadow-md transition"
+              >
+                <div className="flex gap-4 items-center">
+                  <img
+                    src={blog.thumbnail}
+                    alt={blog.title}
+                    className="w-20 h-20 object-cover rounded-lg"
+                  />
+                  <div className="flex-1">
+                    <CardTitle className="text-sm font-semibold leading-snug">
+                      {blog.title}
+                    </CardTitle>
+                    <CardDescription className="text-xs text-gray-500 mt-1">
+                      By {blog.author}
+                    </CardDescription>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+          {/* Single View More button at the bottom */}
+          <div className="flex justify-center pt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-emerald-600 hover:bg-emerald-50"
+              onClick={() => router.push("/blogs/recommended")}
+            >
+              View More →
+            </Button>
+          </div>
+        </aside>
       </section>
-
-      {/* Footer */}
-      <footer className="text-center text-gray-500 py-6 border-t">
-        <p>&copy; 2025 Tech Insights. All rights reserved.</p>
-      </footer>
     </main>
   );
 }
