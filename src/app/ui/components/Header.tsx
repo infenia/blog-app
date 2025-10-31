@@ -16,7 +16,8 @@ export default function Header() {
     { href: "/products", label: "Products" },
     { href: "/services", label: "Services" },
     { href: "/blog", label: "Blog" },
-    { href: "#contact", label: "Contact" },
+    { href: "/contact", label: "Contact" },
+
   ];
 
   return (
@@ -31,9 +32,15 @@ export default function Header() {
               width={50}
               height={32}
             />
-            <span className="ml-3 text-3xl font-bold text-[#DC382D]">
+          <span
+              className="ml-3 text-3xl font-bold text-transparent bg-clip-text 
+                         bg-gradient-to-r from-[#FF6B00] to-[#8A2BE2]
+                         dark:from-[#FF8C32] dark:to-[#B580FF]">
               INFENIA
             </span>
+
+
+
           </Link>
           <nav className="hidden md:flex items-center space-x-8">
             {navItems.map((item) => {
